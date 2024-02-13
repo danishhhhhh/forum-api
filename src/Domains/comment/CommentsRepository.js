@@ -1,4 +1,4 @@
-class ThreadsRepository {
+class CommentsRepository {
   async addComments(comment) {
     throw new Error('COMMENTS_REPOSITORY.METHOD_NOT_IMPLEMENTED');
   }
@@ -20,4 +20,4 @@ class ThreadsRepository {
   }
 }
 
-module.exports = ThreadsRepository;
+module.exports = CommentsRepository;

@@ -27,7 +27,7 @@ const LoginUserUseCase = require('../Applications/use_case/LoginUserUseCase');
 const LogoutUserUseCase = require('../Applications/use_case/LogoutUserUseCase');
 const RefreshAuthenticationUseCase = require('../Applications/use_case/RefreshAuthenticationUseCase');
 const AddThreadUseCase = require('../Applications/use_case/AddThreadUseCase');
-// const AddCommentUseCase = require('../Applications/use_case/AddCommentUseCase');
+const AddCommentUseCase = require('../Applications/use_case/AddCommentUseCase');
 
 const BcryptPasswordHash = require('./security/BcryptPasswordHash');
 const JwtTokenManager = require('./security/JwtTokenManager');
@@ -76,20 +76,20 @@ container.register([
       ],
     },
   },
-  // {
-  //   key: CommentsRepository.name,
-  //   Class: CommentRepositoryPostgres,
-  //   parameter: {
-  //     dependencies: [
-  //       {
-  //         concrete: pool,
-  //       },
-  //       {
-  //         concrete: nanoid,
-  //       },
-  //     ],
-  //   },
-  // },
+  {
+    key: CommentsRepository.name,
+    Class: CommentRepositoryPostgres,
+    parameter: {
+      dependencies: [
+        {
+          concrete: pool,
+        },
+        {
+          concrete: nanoid,
+        },
+      ],
+    },
+  },
   {
     key: PasswordHash.name,
     Class: BcryptPasswordHash,
@@ -201,23 +201,23 @@ container.register([
       ],
     },
   },
-  // {
-  //   key: AddCommentUseCase.name,
-  //   Class: AddCommentUseCase,
-  //   parameter: {
-  //     injectType: 'destructuring',
-  //     dependencies: [
-  //       {
-  //         name: 'commentRepository',
-  //         internal: CommentsRepository.name,
-  //       },
-  //       {
-  //         name: 'threadRepository',
-  //         internal: ThreadsRepository.name,
-  //       },
-  //     ],
-  //   },
-  // },
+  {
+    key: AddCommentUseCase.name,
+    Class: AddCommentUseCase,
+    parameter: {
+      injectType: 'destructuring',
+      dependencies: [
+        {
+          name: 'commentRepository',
+          internal: CommentsRepository.name,
+        },
+        {
+          name: 'threadRepository',
+          internal: ThreadsRepository.name,
+        },
+      ],
+    },
+  },
 ]);
 
 module.exports = container;
