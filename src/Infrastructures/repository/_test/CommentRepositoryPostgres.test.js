@@ -80,7 +80,7 @@ describe('CommentssRepositoryPostgres', () => {
       const commentRepositoryPostgres = new CommentRepositoryPostgres(pool, {});
 
       // Assert
-      await expect(commentRepositoryPostgres.verifyCommentOwnerById('comment-123', 'user-123')).rejects.toThrowError(AuthorizationError);
+      await expect(commentRepositoryPostgres.verifyCommentOwnerById('comment-123', 'user-234')).rejects.toThrowError(AuthorizationError);
     });
   });
 
@@ -111,7 +111,7 @@ describe('CommentssRepositoryPostgres', () => {
 
       // Assert
       await expect(commentRepositoryPostgres.verifyCommentOwnerById('comment-123', 'user-123'))
-        .rejects.toThrow(AuthorizationError);
+        .resolves.not.toThrow(AuthorizationError);
     });
   });
 

@@ -155,4 +155,164 @@ describe('/comments endpoint', () => {
       expect(responseJson.message).toEqual('Missing authentication');
     });
   });
+
+  describe('when DELETE /threads/{threadId}/comments/{commentId}', () => {
+    it('should response 200 and persisted user', async () => {
+      // Arrange
+      const requestPayloadComment = {
+        content: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.',
+      };
+
+      const server = await createServer(container);
+
+      // Action
+      const responseComment = await server.inject({
+        method: 'POST',
+        url: `/threads/${threadId}/comments`,
+        payload: requestPayloadComment,
+        headers: {
+          Authorization: `Bearer ${responseJsonAuthentication.data.accessToken}`,
+        },
+      });
+
+      const responseJsonComment = JSON.parse(responseComment.payload);
+      const commentId = responseJsonComment.data.addedComment.id;
+
+      const response = await server.inject({
+        method: 'DELETE',
+        url: `/threads/${threadId}/comments/${commentId}`,
+        payload: {},
+        headers: {
+          Authorization: `Bearer ${responseJsonAuthentication.data.accessToken}`,
+        },
+      });
+
+      // Assert
+      const responseJson = JSON.parse(response.payload);
+      expect(response.statusCode).toEqual(200);
+      expect(responseJson.status).toEqual('success');
+    });
+
+    it('should response 400 when request payload not contain needed property', async () => {
+      // Arrange
+      const requestPayloadComment = {
+        content: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.',
+      };
+
+      const server = await createServer(container);
+
+      // Action
+      const response = await server.inject({
+        method: 'DELETE',
+        url: `/threads/${threadId}/comments/comment-`,
+        payload: {},
+        headers: {
+          Authorization: `Bearer ${responseJsonAuthentication.data.accessToken}`,
+        },
+      });
+
+      // Assert
+      const responseJson = JSON.parse(response.payload);
+      expect(response.statusCode).toEqual(404);
+      expect(responseJson.status).toEqual('fail');
+      expect(responseJson.message).toEqual('comment tidak ditemukan');
+    });
+
+    it('should response 403 when user is not the owner of comment', async () => {
+      // Arrange
+      const requestPayloadUserSecond = {
+        username: 'guest',
+        password: 'guestpassword',
+        fullname: 'aku guest',
+      };
+
+      const requestPayloadAuthenticationSecond = {
+        username: 'guest',
+        password: 'guestpassword',
+      };
+
+      const requestPayloadComment = {
+        content: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.',
+      };
+
+      const server = await createServer(container);
+
+      // Action
+      // add user
+      await server.inject({
+        method: 'POST',
+        url: '/users',
+        payload: requestPayloadUserSecond,
+      });
+
+      // add accessToken
+      const responseAuthenticationSecond = await server.inject({
+        method: 'POST',
+        url: '/authentications',
+        payload: requestPayloadAuthenticationSecond,
+      });
+
+      const responseJsonAuthenticationSecond = JSON.parse(responseAuthenticationSecond.payload);
+
+      const responseComment = await server.inject({
+        method: 'POST',
+        url: `/threads/${threadId}/comments`,
+        payload: requestPayloadComment,
+        headers: {
+          Authorization: `Bearer ${responseJsonAuthenticationSecond.data.accessToken}`,
+        },
+      });
+
+      const responseJsonComment = JSON.parse(responseComment.payload);
+      const commentId = responseJsonComment.data.addedComment.id;
+
+      const response = await server.inject({
+        method: 'DELETE',
+        url: `/threads/${threadId}/comments/${commentId}`,
+        payload: {},
+        headers: {
+          Authorization: `Bearer ${responseJsonAuthentication.data.accessToken}`,
+        },
+      });
+
+      // Assert
+      const responseJson = JSON.parse(response.payload);
+      expect(response.statusCode).toEqual(403);
+      expect(responseJson.status).toEqual('fail');
+      expect(responseJson.message).toEqual('anda tidak memiliki akses menghapus comment');
+    });
+
+    it('should response 401 if payload not access token', async () => {
+      // Arrange
+      const requestPayloadComment = {
+        content: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.',
+      };
+
+      const server = await createServer(container);
+
+      // Action
+      const responseComment = await server.inject({
+        method: 'POST',
+        url: `/threads/${threadId}/comments`,
+        payload: requestPayloadComment,
+        headers: {
+          Authorization: `Bearer ${responseJsonAuthentication.data.accessToken}`,
+        },
+      });
+
+      const responseJsonComment = JSON.parse(responseComment.payload);
+      const commentId = responseJsonComment.data.addedComment.id;
+
+      const response = await server.inject({
+        method: 'DELETE',
+        url: `/threads/${threadId}/comments/${commentId}`,
+        payload: {},
+      });
+
+      const responseJson = JSON.parse(response.payload);
+      expect(response.statusCode).toEqual(401);
+      expect(responseJson.error).toEqual('Unauthorized');
+      expect(responseJson.message).toEqual('Missing authentication');
+    });
+  });
 });

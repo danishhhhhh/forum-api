@@ -1,5 +1,4 @@
 const AddComments = require('../../Domains/comment/entities/AddComments');
-const RegisterUser = require('../../Domains/users/entities/RegisterUser');
 
 class AddCommentUserCase {
   constructor({ commentRepository, threadRepository }) {

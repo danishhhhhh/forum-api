@@ -33,7 +33,7 @@ class CommentRepositoryPostgres extends CommentsRepository {
     await this._pool.query(query);
   }
 
-  async verifyCommentOwnerById(id, owner) {
+  async verifyCommentOwnerById(id, user) {
     const query = {
       text: 'SELECT * FROM thread_comments WHERE id = $1',
       values: [id],
@@ -43,7 +43,7 @@ class CommentRepositoryPostgres extends CommentsRepository {
 
     const comment = rows[0];
 
-    if (comment.owner !== owner) {
+    if (comment.user_id !== user) {
       throw new AuthorizationError('anda tidak memiliki akses menghapus comment');
     }
   }
